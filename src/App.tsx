@@ -1,11 +1,21 @@
 import './App.css'
+import SignIn from './components/SignIn'
+import SignUp from './components/SignUp'
+import Main from './components/Main'
+import NotFound from './components/NotFound'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 function App() {
 
   return (
-    <>
-      <h1>hello world</h1>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Main />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
