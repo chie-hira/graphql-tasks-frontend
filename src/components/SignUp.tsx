@@ -10,11 +10,11 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useState } from "react";
-import {User} from "../types/user";
-import {useMutation} from "@apollo/client";
-import {SIGN_IN, SIGN_UP} from "../mutations/authMutations";
-import {SignInResponse} from "../types/signInResponse";
-import {useNavigate} from "react-router-dom";
+import { User } from "../types/user";
+import { useMutation } from "@apollo/client";
+import { SIGN_IN, SIGN_UP } from "../mutations/authMutations";
+import { SignInResponse } from "../types/signInResponse";
+import { useNavigate } from "react-router-dom";
 
 const defaultTheme = createTheme();
 
@@ -22,7 +22,7 @@ export default function SignUp() {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
-    const [signUp] = useMutation<{createUser: User}>(SIGN_UP);
+    const [signUp] = useMutation<{ createUser: User }>(SIGN_UP);
     const [signIn] = useMutation<SignInResponse>(SIGN_IN);
     const navigate = useNavigate();
 
@@ -33,29 +33,32 @@ export default function SignUp() {
         try {
             const signUpResult = await signUp({
                 // mutationで定義した引数名とhandleSubmit関数内で定義した変数名が異なるので省略形は使用できない
-                variables: { createUserInput: signUpInput},
+                variables: { createUserInput: signUpInput },
             });
 
             if (!signUpResult.data?.createUser) {
-                alert('ユーザーの作成に失敗しました');
+                alert("ユーザーの作成に失敗しました");
                 return;
             }
-            
+
             // signInしてMainPageに遷移
             const signInInput = { email, password };
             const signInResult = await signIn({ variables: { signInInput } });
             if (signInResult.data) {
-                localStorage.setItem("token", signInResult.data.signIn.accessToken);
+                localStorage.setItem(
+                    "token",
+                    signInResult.data.signIn.accessToken
+                );
             }
-            
-            if (localStorage.getItem('token')) {
+
+            if (localStorage.getItem("token")) {
                 navigate("/");
             }
-        } catch (error: unknown) {
+        } catch (error) {
             if (error instanceof Error) {
                 console.log(error.message);
             }
-            alert('ユーザーの作成に失敗しました');
+            alert("ユーザーの作成に失敗しました");
             return;
         }
         console.log({
