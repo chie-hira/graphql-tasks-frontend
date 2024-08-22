@@ -5,25 +5,9 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import {Task} from "../types/task";
 
-function createData(
-    name: string,
-    dueDate: string,
-    status: string,
-) {
-    return { name, dueDate, status };
-}
-
-const rows = [
-    createData('task1', '2022-02-02', 'not started'),
-    createData('task2', '2022-02-02', 'not started'),
-    createData('task3', '2022-02-02', 'not started'),
-    createData('task4', '2022-02-02', 'not started'),
-    createData('task5', '2022-02-02', 'not started'),
-    createData('task6', '2022-02-02', 'not started'),
-];
-
-export default function TaskTable() {
+export default function TaskTable({ tasks, userId }: { tasks: Task[] | undefined, userId: number }) {
     return (
         <TableContainer component={Paper} sx={{ width: '80%', m: 'auto' }}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -36,9 +20,9 @@ export default function TaskTable() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {rows.map((row) => (
+                    {tasks?.map((task) => (
                         <TableRow
-                            key={row.name}
+                            key={task.id}
                             sx={{
                                 "&:last-child td, &:last-child th": {
                                     border: 0,
@@ -46,10 +30,10 @@ export default function TaskTable() {
                             }}
                         >
                             <TableCell component="th" scope="row">
-                                {row.name}
+                                {task.name}
                             </TableCell>
-                            <TableCell align="right">{row.dueDate}</TableCell>
-                            <TableCell align="right">{row.status}</TableCell>
+                            <TableCell align="right">{task.dueDate}</TableCell>
+                            <TableCell align="right">{task.status}</TableCell>
                             <TableCell align="right"></TableCell>
                         </TableRow>
                     ))}
