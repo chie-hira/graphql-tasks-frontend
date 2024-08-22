@@ -10,19 +10,41 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState } from 'react';
+import { SignInResponse } from '../types/signInResponse';
+import { useMutation } from '@apollo/client';
+import { SIGN_IN } from '../mutations/authMutations';
+import { useNavigate } from 'react-router-dom';
 
 const defaultTheme = createTheme();
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState(''); 
+  const [failSignIn, setFalSignIn] = useState(false);
+  const [signIn] = useMutation<SignInResponse>(SIGN_IN);
+  const navigate = useNavigate();
   
-  const handleSubmit = (event: any) => {
+  // eventオブジェクトがフォームイベントであり、フォーム要素に関連付けられていることが明確になる
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log({
-      email,
-      password,
-    });
+    const signInInput = { email, password };
+
+    try {
+      const result = await signIn({ variables: { signInInput } });
+      console.log(result);
+      if (result.data) {
+        localStorage.setItem('token', result.data.signIn.accessToken);
+      }
+      localStorage.getItem('token') && navigate('/');
+      
+    } catch (error: any) {
+      if (error.message === 'Unauthorized') {
+        setFalSignIn(true);
+        return;
+      }
+      console.log(error.message);
+      alert('エラーが発生しました');
+    }
   };
 
   return (
@@ -68,6 +90,9 @@ export default function SignIn() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+            {failSignIn && <Typography color='red'>
+              メールアドレスまたはパスワードが間違っています
+            </Typography>}
             <Button
               type="submit"
               fullWidth
