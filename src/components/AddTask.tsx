@@ -5,18 +5,73 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import {useMutation} from "@apollo/client";
+import {Task} from "../types/task";
+import {CREATE_TASK} from "../mutations/taskMutations";
+import {GET_TASKS} from "../queries/taskQueries";
+import {useNavigate} from "react-router-dom";
 
-export default function AddTask() {
+export default function AddTask({ userId }: { userId: number }) {
     const [open, setOpen] = useState(false);
     const [name, setName] = useState('');
     const [dueDate, setDueDate] = useState('');
     const [description, setDescription] = useState('');
+    const [isInvalidName, setIsInvalidName] = useState(false); // チェック用のフィールド
+    const [isInvalidDueDate, setIsInvalidDueDate] = useState(false); // チェック用のフィールド
+    const navigate = useNavigate();
+    const [createTask] = useMutation<{ createTask: Task[] }>(CREATE_TASK);
+
+    const resetState = () => {
+        setName('');
+        setDueDate('');
+        setDescription('');
+        setIsInvalidName(false);
+        setIsInvalidDueDate(false);
+    }
+
+    const handleAddTask = async () => {
+        setIsInvalidName(false);
+        setIsInvalidDueDate(false);
+        
+        if (name.length === 0) {
+            setIsInvalidName(true);
+        }
+
+        if (!Date.parse(dueDate)) {
+            setIsInvalidDueDate(true);
+        }
+
+        if (name.length === 0 || !Date.parse(dueDate)) {
+            return;
+        }
+
+        const createTaskInput = { name, dueDate, description, userId };
+        
+        try {
+            await createTask({
+                variables: { createTaskInput },
+                refetchQueries: [{ query: GET_TASKS, variables: { userId: userId } }], // クエリを再実行 一覧を取得
+            });
+            resetState(); // 入力値をリセット
+            setOpen(false); // ダイアログを閉じる
+        } catch (error: unknown) {
+            if (error instanceof Error && error.message === 'Unauthorized') {
+                localStorage.removeItem('token');
+                alert('Session expired. Please log in again.');
+                navigate('/signin');
+                return;
+            }
+            alert('Failed to add task');
+        }
+    }
+
 
     const handleClickOpen = () => {
         setOpen(true);
     };
 
     const handleClose = () => {
+        resetState();
         setOpen(false);
     };
 
@@ -37,6 +92,8 @@ export default function AddTask() {
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
+                        error={isInvalidName}
+                        helperText={isInvalidName ? 'Task name is required' : ''}
                     />
                     <TextField
                         autoFocus
@@ -48,6 +105,8 @@ export default function AddTask() {
                         required
                         value={dueDate}
                         onChange={(e) => setDueDate(e.target.value)}
+                        error={isInvalidDueDate}
+                        helperText={isInvalidDueDate ? 'Invalid date format' : ''}
                     />
                     <TextField
                         autoFocus
@@ -63,7 +122,7 @@ export default function AddTask() {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={handleClose}>Add</Button>
+                    <Button onClick={handleAddTask}>Add</Button>
                 </DialogActions>
             </Dialog>
         </div>

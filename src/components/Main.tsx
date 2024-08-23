@@ -4,7 +4,7 @@ import TaskTable from "./TaskTable";
 import {Payload} from "../types/payload";
 import {useQuery} from "@apollo/client";
 import {Task} from "../types/task";
-import {GET_TASK} from "../queries/taskQueries";
+import {GET_TASKS} from "../queries/taskQueries";
 import Loading from "./Loading";
 import {Stack, Typography} from "@mui/material";
 import AddTask from "./AddTask";
@@ -14,7 +14,7 @@ const Main = () => {
     const decodedToken = jwtDecode<Payload>(token!);
     const userId = decodedToken.sub;
 
-    const { loading, error, data } = useQuery<{ getTasks: Task[] }>(GET_TASK, {
+    const { loading, error, data } = useQuery<{ getTasks: Task[] }>(GET_TASKS, {
         variables: { userId: userId },
     });
     console.log(data);
@@ -27,7 +27,7 @@ const Main = () => {
             { error && <Typography color='red'>Error</Typography> }
             { !loading && !error &&
                 <>
-                    <AddTask />
+                    <AddTask userId={userId} />
                     <TaskTable tasks={data?.getTasks} userId={userId} />
                 </>
             }
