@@ -6,6 +6,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import {Task} from "../types/task";
+import EditTask from "./EditTask";
 
 export default function TaskTable({ tasks, userId }: { tasks: Task[] | undefined, userId: number }) {
     return (
@@ -34,7 +35,7 @@ export default function TaskTable({ tasks, userId }: { tasks: Task[] | undefined
                             </TableCell>
                             <TableCell align="right">{task.dueDate}</TableCell>
                             <TableCell align="right">{task.status}</TableCell>
-                            <TableCell align="right"></TableCell>
+                            <TableCell align="right"><EditTask task={task} userId={userId} /></TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
