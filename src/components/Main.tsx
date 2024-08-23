@@ -7,6 +7,7 @@ import {Task} from "../types/task";
 import {GET_TASK} from "../queries/taskQueries";
 import Loading from "./Loading";
 import {Stack, Typography} from "@mui/material";
+import AddTask from "./AddTask";
 
 const Main = () => {
     const token = localStorage.getItem("token");
@@ -24,7 +25,12 @@ const Main = () => {
             <Stack spacing={4} direction='column' m={8} alignItems='center'>
             { loading && <Loading /> }
             { error && <Typography color='red'>Error</Typography> }
-            { !loading && !error && <TaskTable tasks={data?.getTasks} userId={userId} /> }
+            { !loading && !error &&
+                <>
+                    <AddTask />
+                    <TaskTable tasks={data?.getTasks} userId={userId} />
+                </>
+            }
             </Stack>
         </>
     );
